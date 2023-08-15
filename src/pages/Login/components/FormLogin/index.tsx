@@ -14,9 +14,9 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
+import { showNotification } from '../../../../store/modules/Notification/notificationSlice';
 import { loginUsuario } from '../../../../store/modules/Usuario/usuarioSlice';
 import { IsValidCredentials } from '../../../../store/types/IsValidCredentials';
-import { emailRegex } from '../../../../utils/validators/regexData';
 import AlertDialog from '../ModalSignUpUser';
 
 export const FormLogin = () => {
@@ -44,20 +44,6 @@ export const FormLogin = () => {
 		}
 	}, [user, navigate]);
 
-	useEffect(() => {
-		if (email.length && !emailRegex.test(email)) {
-			setEmailIsValid({
-				helperText: 'Informe um e-mail válido.',
-				isValid: false,
-			});
-		} else {
-			setEmailIsValid({
-				helperText: 'Utilize seu e-mail para criar uma conta.',
-				isValid: true,
-			});
-		}
-	}, [email]);
-
 	const handleSubmit = (ev: React.FormEvent<HTMLFormElement>) => {
 		ev.preventDefault();
 
@@ -67,11 +53,12 @@ export const FormLogin = () => {
 		};
 
 		if (!email || !senha) {
-			setEmailIsValid({
-				helperText: 'Usuário não cadastrado.',
-				isValid: false,
-			});
-			return;
+			dispatch(
+				showNotification({
+					success: false,
+					message: 'Usuário não cadastrado.',
+				}),
+			);
 		}
 
 		dispatch(loginUsuario(login));
