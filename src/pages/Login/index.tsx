@@ -1,8 +1,11 @@
 import { Box, Container, Typography } from '@mui/material';
 
+import { useAppDispatch } from '../../store/hooks';
 import { FormLogin } from './components/FormLogin';
 
 export const Login = () => {
+	const dispatch = useAppDispatch();
+
 	return (
 		<Container
 			component="main"

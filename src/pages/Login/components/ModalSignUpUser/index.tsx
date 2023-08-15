@@ -1,5 +1,11 @@
 import { Close } from '@mui/icons-material';
-import { Box, Divider, IconButton, TextField } from '@mui/material';
+import {
+	Box,
+	CircularProgress,
+	Divider,
+	IconButton,
+	TextField,
+} from '@mui/material';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -8,10 +14,11 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import React, { useEffect, useState } from 'react';
 
-import { useAppDispatch } from '../../../../store/hooks';
-import { adicionarUsuario } from '../../../../store/modules/Users/usersSlice';
+import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
+import { cadastrarUsuario } from '../../../../store/modules/Usuario/usuarioSlice';
 import { IsValidCredentials } from '../../../../store/types/IsValidCredentials';
-import { emailRegex } from '../../../../utils/validators/regexData';
+import { User } from '../../../../store/types/usuario';
+import { emailRegex, nomeRegex } from '../../../../utils/validators/regexData';
 
 export interface AlertDialogProps {
 	aberto: boolean;
@@ -19,8 +26,15 @@ export interface AlertDialogProps {
 }
 
 const AlertDialog: React.FC<AlertDialogProps> = ({ aberto, mudarAberto }) => {
-	const [emailCadastro, setEmailCadastro] = useState('');
-	const [senhaCadastro, setSenhaCadastro] = useState('');
+	const [nome, setNome] = useState('');
+	const [email, setEmail] = useState('');
+	const [senha, setSenha] = useState('');
+	const estadoUsuario = useAppSelector((estado) => estado.users);
+
+	const [errorNome, setErrorNome] = useState<IsValidCredentials>({
+		helperText: '',
+		isValid: true,
+	});
 
 	const [errorEmail, setErrorEmail] = useState<IsValidCredentials>({
 		helperText: '',
@@ -32,10 +46,53 @@ const AlertDialog: React.FC<AlertDialogProps> = ({ aberto, mudarAberto }) => {
 		isValid: true,
 	});
 
+	const handleClose = () => {
+		mudarAberto(false);
+	};
+
+	const usuario: User = {
+		nome,
+		email,
+		senha,
+	};
+
+	const handleSignupUser = (ev: React.FormEvent<HTMLFormElement>) => {
+		ev.preventDefault();
+
+		if (!ev.currentTarget.checkValidity()) {
+			return;
+		}
+
+		dispatch(cadastrarUsuario(usuario));
+		setTimeout(() => {
+			// limpar os campos de input
+			setEmail('');
+			setSenha('');
+			setNome('');
+
+			// fechar o modal
+			handleClose();
+		}, 3000);
+	};
+
 	const dispatch = useAppDispatch();
 
 	useEffect(() => {
-		if (emailCadastro.length && !emailRegex.test(emailCadastro)) {
+		if (!nome.length && !nomeRegex.test(nome)) {
+			setErrorNome({
+				helperText: 'Informe um nome.',
+				isValid: false,
+			});
+		} else {
+			setErrorNome({
+				helperText: 'Utilize seu nome para criar uma conta.',
+				isValid: true,
+			});
+		}
+	}, [nome]);
+
+	useEffect(() => {
+		if (email.length && !emailRegex.test(email)) {
 			setErrorEmail({
 				helperText: 'Informe um e-mail válido.',
 				isValid: false,
@@ -46,10 +103,10 @@ const AlertDialog: React.FC<AlertDialogProps> = ({ aberto, mudarAberto }) => {
 				isValid: true,
 			});
 		}
-	}, [emailCadastro]);
+	}, [email]);
 
 	useEffect(() => {
-		if (senhaCadastro.length && senhaCadastro.length < 6) {
+		if (senha.length && senha.length < 6) {
 			setErrorSenha({
 				helperText: 'Cadastre uma senha com no mínimo 6 caracteres.',
 				isValid: false,
@@ -61,32 +118,18 @@ const AlertDialog: React.FC<AlertDialogProps> = ({ aberto, mudarAberto }) => {
 				isValid: true,
 			});
 		}
-	}, [senhaCadastro]);
+	}, [senha]);
 
-	const handleClose = () => {
-		mudarAberto(false);
-	};
+	// useEffect(() => {
+	// 	if (!estadoUsuario.loading) {
+	// 		setEmail('');
+	// 		setSenha('');
+	// 		setNome('');
 
-	const handleSignupUser = (ev: React.FormEvent<HTMLFormElement>) => {
-		ev.preventDefault();
-
-		if (!ev.currentTarget.checkValidity()) {
-			return;
-		}
-
-		dispatch(
-			adicionarUsuario({
-				email: emailCadastro,
-				senha: senhaCadastro,
-			}),
-		);
-		// limpar os campos de input
-		setEmailCadastro('');
-		setSenhaCadastro('');
-
-		// fechar o modal
-		handleClose();
-	};
+	// 		// fechar o modal
+	// 		handleClose();
+	// 	}
+	// }, [estadoUsuario, handleClose]);
 
 	return (
 		<Dialog
@@ -115,6 +158,19 @@ const AlertDialog: React.FC<AlertDialogProps> = ({ aberto, mudarAberto }) => {
 				<DialogContent>
 					<DialogContentText id="alert-dialog-description">
 						<TextField
+							label="Nome"
+							type="text"
+							error={!errorNome.isValid}
+							helperText={errorNome.helperText}
+							fullWidth
+							sx={{ marginY: 3 }}
+							onChange={(event) => {
+								setNome(event.currentTarget.value);
+							}}
+							required
+							value={nome}
+						/>
+						<TextField
 							label="E-mail"
 							type="email"
 							error={!errorEmail.isValid}
@@ -122,10 +178,10 @@ const AlertDialog: React.FC<AlertDialogProps> = ({ aberto, mudarAberto }) => {
 							fullWidth
 							sx={{ marginY: 3 }}
 							onChange={(event) => {
-								setEmailCadastro(event.currentTarget.value);
+								setEmail(event.currentTarget.value);
 							}}
 							required
-							value={emailCadastro}
+							value={email}
 						/>
 						<TextField
 							label="Senha"
@@ -135,11 +191,11 @@ const AlertDialog: React.FC<AlertDialogProps> = ({ aberto, mudarAberto }) => {
 							fullWidth
 							sx={{ marginY: 3 }}
 							onChange={(event) => {
-								setSenhaCadastro(event.currentTarget.value);
+								setSenha(event.currentTarget.value);
 							}}
 							required
 							inputProps={{ minLength: 6 }}
-							value={senhaCadastro}
+							value={senha}
 						/>
 					</DialogContentText>
 				</DialogContent>
@@ -161,6 +217,13 @@ const AlertDialog: React.FC<AlertDialogProps> = ({ aberto, mudarAberto }) => {
 						type="submit"
 						variant="contained"
 						autoFocus
+						startIcon={
+							estadoUsuario.loading ? (
+								<CircularProgress color="inherit" />
+							) : (
+								<></>
+							)
+						}
 					>
 						Cadastrar
 					</Button>

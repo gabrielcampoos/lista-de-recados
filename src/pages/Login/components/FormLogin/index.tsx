@@ -13,15 +13,9 @@ import {
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import Loading from '../../../../shared-components/Loading';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
-import {
-	hideLoading,
-	showLoading,
-} from '../../../../store/modules/Loading/loadingSlice';
-import { buscarUsuarios } from '../../../../store/modules/Users/usersSlice';
+import { loginUsuario } from '../../../../store/modules/Usuario/usuarioSlice';
 import { IsValidCredentials } from '../../../../store/types/IsValidCredentials';
-import { emailRegex } from '../../../../utils/validators/regexData';
 import AlertDialog from '../ModalSignUpUser';
 
 export const FormLogin = () => {
@@ -34,76 +28,36 @@ export const FormLogin = () => {
 		isValid: false,
 	});
 
+	const user = useAppSelector((state) => state.users);
+
 	const navigate = useNavigate();
 	const dispatch = useAppDispatch();
-	const select = useAppSelector(buscarUsuarios);
 
 	useEffect(() => {
-		if (email.length && !emailRegex.test(email)) {
-			setEmailIsValid({
-				helperText: 'Email inválido',
-				isValid: false,
-			});
+		if (user.usuario.isLogged) {
+			navigate('/Home');
+		}
+	}, [user, navigate]);
+
+	const handleSubmit = (ev: React.FormEvent<HTMLFormElement>) => {
+		ev.preventDefault();
+
+		const login = {
+			email,
+			senha,
+		};
+
+		if (!email || !senha) {
+			console.log('E-mail ou senha inválidos.');
+
 			return;
 		}
 
-		setEmailIsValid({
-			helperText: 'Utilize seu e-mail para realizar o login.',
-			isValid: true,
-		});
-	}, [email]);
-
-	useEffect(() => {
-		if (
-			localStorage.getItem('userLogged') ||
-			sessionStorage.getItem('userLogged')
-		) {
-			navigate('/home');
-		}
-	}, [navigate]);
-
-	const loggedUser = (
-		event: React.SyntheticEvent<Element, Event>,
-		checked: boolean,
-	) => {
-		setIsLogged(checked);
-	};
-
-	// função que controla a abertura do Modal - dispara ao clique do link de cadastrar conta
-	const handleClickOpen = () => {
-		setIsOpen(true);
-	};
-
-	const verifyUserExists = () => {
-		const user = select.find((user) => {
-			return user.email === email && user.senha === senha;
-		});
-
-		if (!user) {
-			alert('Usuário não encontrado.');
-			return;
-		}
-
-		isLogged
-			? localStorage.setItem('userLogged', user.email)
-			: sessionStorage.setItem('userLogged', user.email);
-
-		dispatch(showLoading());
-		setTimeout(() => {
-			dispatch(hideLoading());
-			navigate('/home');
-		}, 2000);
+		dispatch(loginUsuario(login));
 	};
 
 	return (
-		<Box
-			component="form"
-			marginY={4}
-			onSubmit={(event) => {
-				event.preventDefault();
-				verifyUserExists();
-			}}
-		>
+		<Box component="form" marginY={4} onSubmit={handleSubmit}>
 			<TextField
 				label="E-mail"
 				helperText={emailIsValid.helperText}
@@ -140,7 +94,6 @@ export const FormLogin = () => {
 					}}
 					control={<Checkbox sx={{ color: '#fff' }} />}
 					label="Permanecer logado?"
-					onChange={loggedUser}
 					value={isLogged}
 				/>
 			</Grid>
@@ -170,12 +123,11 @@ export const FormLogin = () => {
 						fontWeight: 'bold',
 						fontSize: '1rem',
 					}}
-					onClick={handleClickOpen}
+					onClick={() => setIsOpen(true)}
 				>
 					Criar uma!
 				</Link>
 			</Typography>
-			<Loading />
 			<AlertDialog aberto={isOpen} mudarAberto={setIsOpen} />
 		</Box>
 	);

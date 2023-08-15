@@ -1,28 +1,27 @@
 import { Logout } from '@mui/icons-material';
-import MenuIcon from '@mui/icons-material/Menu';
+import { Typography } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Toolbar from '@mui/material/Toolbar';
 import { useNavigate } from 'react-router-dom';
 
-import { useAppDispatch } from '../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
 	hideLoading,
 	showLoading,
 } from '../../store/modules/Loading/loadingSlice';
-import Loading from '../Loading';
+import { logoutUser } from '../../store/modules/Usuario/usuarioSlice';
 
 const MyAppBar = () => {
 	const navigate = useNavigate();
 	const dispatch = useAppDispatch();
+	const usuarioLogado = useAppSelector((usuario) => usuario.users);
 	const logout = () => {
-		localStorage.removeItem('userLogged');
-		sessionStorage.removeItem('userLogged');
-
 		dispatch(showLoading());
 		setTimeout(() => {
 			dispatch(hideLoading());
+			dispatch(logoutUser());
 			navigate('/');
 		}, 2000);
 	};
@@ -45,7 +44,13 @@ const MyAppBar = () => {
 						aria-label="menu"
 						sx={{ mr: 2 }}
 					>
-						<MenuIcon />
+						<Typography
+							variant="h6"
+							component="p"
+							sx={{ flexGrow: 1 }}
+						>
+							Olá {usuarioLogado.usuario.nome}!
+						</Typography>
 					</IconButton>
 
 					<IconButton
@@ -60,7 +65,6 @@ const MyAppBar = () => {
 					</IconButton>
 				</Toolbar>
 			</AppBar>
-			<Loading />
 		</Box>
 	);
 };

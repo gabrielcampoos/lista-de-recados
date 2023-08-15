@@ -1,9 +1,11 @@
 import { combineReducers } from '@reduxjs/toolkit';
 
+import contextoSlice from './ContextoModal/contextoSlice';
 import loadingSlice from './Loading/loadingSlice';
+import ModalMensagens from './ModalMensagens';
 import notificationSlice from './Notification/notificationSlice';
-import tarefasSlice from './Tarefas/tarefasSlice';
-import usersSlice from './Users/usersSlice';
+import recadosSlice from './Recados/recadosSlice';
+import usersSlice from './Usuario/usuarioSlice';
 
 const rootReducer = combineReducers({
 	// a cada novo slice, adicionamos uma nova propriedade neste objeto
@@ -14,7 +16,9 @@ const rootReducer = combineReducers({
 	notification: notificationSlice,
 	loading: loadingSlice,
 	// modal: modalTarefasSlice,
-	tarefas: tarefasSlice,
+	recados: recadosSlice,
+	contexto: contextoSlice,
+	idRecado: ModalMensagens,
 });
 
 export default rootReducer;
