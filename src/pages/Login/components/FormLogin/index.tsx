@@ -27,6 +27,10 @@ export const FormLogin = () => {
 		helperText: '',
 		isValid: false,
 	});
+	const [errorSenha, setErrorSenha] = useState<IsValidCredentials>({
+		helperText: '',
+		isValid: true,
+	});
 
 	const user = useAppSelector((state) => state.users);
 
@@ -48,7 +52,10 @@ export const FormLogin = () => {
 		};
 
 		if (!email || !senha) {
-			console.log('E-mail ou senha inválidos.');
+			setEmailIsValid({
+				helperText: 'Usuário não cadastrado.',
+				isValid: false,
+			});
 
 			return;
 		}
