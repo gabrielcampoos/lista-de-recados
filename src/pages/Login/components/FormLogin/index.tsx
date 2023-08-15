@@ -16,6 +16,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { loginUsuario } from '../../../../store/modules/Usuario/usuarioSlice';
 import { IsValidCredentials } from '../../../../store/types/IsValidCredentials';
+import { emailRegex } from '../../../../utils/validators/regexData';
 import AlertDialog from '../ModalSignUpUser';
 
 export const FormLogin = () => {
@@ -42,6 +43,20 @@ export const FormLogin = () => {
 			navigate('/Home');
 		}
 	}, [user, navigate]);
+
+	useEffect(() => {
+		if (email.length && !emailRegex.test(email)) {
+			setEmailIsValid({
+				helperText: 'Informe um e-mail válido.',
+				isValid: false,
+			});
+		} else {
+			setEmailIsValid({
+				helperText: 'Utilize seu e-mail para criar uma conta.',
+				isValid: true,
+			});
+		}
+	}, [email]);
 
 	const handleSubmit = (ev: React.FormEvent<HTMLFormElement>) => {
 		ev.preventDefault();
