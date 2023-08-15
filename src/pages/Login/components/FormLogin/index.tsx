@@ -56,7 +56,6 @@ export const FormLogin = () => {
 				helperText: 'Usuário não cadastrado.',
 				isValid: false,
 			});
-
 			return;
 		}
 
