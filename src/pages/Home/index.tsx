@@ -68,7 +68,11 @@ import {
 	listarRecados,
 	refresh,
 } from '../../store/modules/Recados/recadosSlice';
-import { logoutUser, setUser } from '../../store/modules/Usuario/usuarioSlice';
+import {
+	UsuarioLogado,
+	logoutUser,
+	setUser,
+} from '../../store/modules/Usuario/usuarioSlice';
 import { PostitiCards } from './components/Cards';
 import { ModalMensagens } from './components/ModalMensagens';
 
@@ -82,7 +86,9 @@ export const Home: React.FC = () => {
 	const selectUser = useAppSelector((s) => s.users);
 
 	useEffect(() => {
-		const userLogged = localStorage.getItem('userLogged');
+		const userLogged: UsuarioLogado = JSON.parse(
+			localStorage.getItem('userLogged') ?? '',
+		);
 
 		if (!userLogged) {
 			dispatch(
@@ -94,10 +100,9 @@ export const Home: React.FC = () => {
 			dispatch(logoutUser);
 			localStorage.clear();
 			navigate('/');
-			return;
 		}
 
-		dispatch(setUser(JSON.parse(userLogged)));
+		dispatch(setUser(userLogged));
 
 		//lógica de montar o site
 		dispatch(

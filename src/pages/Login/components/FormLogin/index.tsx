@@ -47,11 +47,6 @@ export const FormLogin = () => {
 	const handleSubmit = (ev: React.FormEvent<HTMLFormElement>) => {
 		ev.preventDefault();
 
-		const login = {
-			email,
-			senha,
-		};
-
 		if (!email || !senha) {
 			dispatch(
 				showNotification({
@@ -59,7 +54,13 @@ export const FormLogin = () => {
 					message: 'Usuário não cadastrado.',
 				}),
 			);
+			return;
 		}
+
+		const login = {
+			email,
+			senha,
+		};
 
 		dispatch(loginUsuario(login));
 	};
