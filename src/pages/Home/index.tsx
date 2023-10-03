@@ -68,11 +68,7 @@ import {
 	listarRecados,
 	refresh,
 } from '../../store/modules/Recados/recadosSlice';
-import {
-	UsuarioLogado,
-	logoutUser,
-	setUser,
-} from '../../store/modules/Usuario/usuarioSlice';
+import { logoutUser } from '../../store/modules/Usuario/usuarioSlice';
 import { PostitiCards } from './components/Cards';
 import { ModalMensagens } from './components/ModalMensagens';
 
@@ -85,12 +81,21 @@ export const Home: React.FC = () => {
 	const selectRecados = useAppSelector(listaTodosRecados);
 	const selectUser = useAppSelector((s) => s.users);
 
-	useEffect(() => {
-		const userLogged: UsuarioLogado = JSON.parse(
-			localStorage.getItem('userLogged') ?? '',
-		);
+	const [username, setUsername] = useState('');
+	const [idUserLogged, setIdUserLogged] = useState('');
 
-		if (!userLogged) {
+	useEffect(() => {
+		setUsername(selectUser.usuario.nome);
+		setIdUserLogged(selectUser.usuario.id);
+	}, [
+		selectUser.usuario.nome,
+		selectUser.usuario.id,
+		username,
+		idUserLogged,
+	]);
+
+	useEffect(() => {
+		if (!selectUser.usuario.isLogged) {
 			dispatch(
 				showNotification({
 					success: false,
@@ -101,9 +106,9 @@ export const Home: React.FC = () => {
 			localStorage.clear();
 			navigate('/');
 		}
+	}, [selectUser, navigate]);
 
-		dispatch(setUser(userLogged));
-
+	useEffect(() => {
 		//lógica de montar o site
 		dispatch(
 			listarRecados({

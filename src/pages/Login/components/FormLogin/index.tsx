@@ -10,10 +10,14 @@ import {
 	TextField,
 	Typography,
 } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
+import {
+	hideLoading,
+	showLoading,
+} from '../../../../store/modules/Loading/loadingSlice';
 import { showNotification } from '../../../../store/modules/Notification/notificationSlice';
 import { loginUsuario } from '../../../../store/modules/Usuario/usuarioSlice';
 import AlertDialog from '../ModalSignUpUser';
@@ -27,6 +31,17 @@ export const FormLogin = () => {
 
 	const navigate = useNavigate();
 	const dispatch = useAppDispatch();
+
+	useEffect(() => {
+		if (user.usuario.isLogged) {
+			dispatch(showLoading());
+
+			setTimeout(() => {
+				dispatch(hideLoading());
+				navigate('/home');
+			}, 1000);
+		}
+	}, [dispatch, user, navigate]);
 
 	const handleSubmit = (ev: React.FormEvent<HTMLFormElement>) => {
 		ev.preventDefault();
@@ -50,7 +65,7 @@ export const FormLogin = () => {
 	};
 
 	return (
-		<Box component="form" marginY={4} onSubmit={handleSubmit}>
+		<Box component="form" marginY={4} onSubmit={(ev) => handleSubmit(ev)}>
 			<TextField
 				label="E-mail"
 				// helperText={emailIsValid.helperText}
