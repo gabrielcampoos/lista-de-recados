@@ -106,7 +106,7 @@ export const Home: React.FC = () => {
 			localStorage.clear();
 			navigate('/');
 		}
-	}, [selectUser, navigate]);
+	}, [selectUser, navigate, dispatch]);
 
 	useEffect(() => {
 		//lógica de montar o site
