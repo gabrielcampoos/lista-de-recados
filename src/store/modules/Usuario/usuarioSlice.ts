@@ -183,7 +183,8 @@ import { AxiosError } from 'axios';
 
 import serviceAPI from '../../../configs/services/listaDeRecados.api';
 import { RespostaCadastro } from '../../types/RetornoRequests';
-import { UsuarioLogin, UsuarioState } from '../../types/UsuarioState';
+import { UsuarioLogin } from '../../types/UsuarioState';
+import { RetornoLogin, User } from '../../types/usuario';
 import { showNotification } from '../Notification/notificationSlice';
 
 export type UsuarioLogado = {
@@ -193,14 +194,19 @@ export type UsuarioLogado = {
 };
 
 const initialState = {
-	usuario: { id: '', nome: '', isLogged: false },
+	usuario: {
+		id: '',
+		nome: '',
+		isLogged: false,
+	},
+
 	loading: false,
 };
 
 // Criar action async para sign up
 export const cadastrarUsuario = createAsyncThunk(
 	'usuario/cadastro',
-	async (novoUsuario: UsuarioState, { dispatch }) => {
+	async (novoUsuario: User, { dispatch }) => {
 		//try catch - toda vez q for feita uma requisição externa
 
 		try {
@@ -211,7 +217,7 @@ export const cadastrarUsuario = createAsyncThunk(
 			dispatch(
 				showNotification({
 					message: respostaAPI.mensagem,
-					success: respostaAPI.sucesso,
+					success: respostaAPI.sucesso ? true : false,
 				}),
 			);
 
@@ -245,7 +251,7 @@ export const loginUsuario = createAsyncThunk(
 		try {
 			const resposta = await serviceAPI.post('/login', login);
 
-			const respostaAPI = resposta.data as RespostaCadastro;
+			const respostaAPI = resposta.data as RetornoLogin;
 
 			dispatch(
 				showNotification({
@@ -257,7 +263,7 @@ export const loginUsuario = createAsyncThunk(
 			return respostaAPI;
 		} catch (error) {
 			if (error instanceof AxiosError) {
-				const response = error.response?.data as RespostaCadastro;
+				const response = error.response?.data as RetornoLogin;
 
 				dispatch(
 					showNotification({
@@ -286,8 +292,8 @@ export const usuariosSlice = createSlice({
 				...estadoAtual,
 				usuario: {
 					id: action.payload.id,
-					isLogged: action.payload.isLogged,
 					nome: action.payload.nome,
+					isLogged: false,
 				},
 			};
 		},
@@ -351,29 +357,19 @@ export const usuariosSlice = createSlice({
 					...estadoAtual,
 					usuario: {
 						id: payload.dadoCadastrado.id,
-						isLogged: true,
 						nome: payload.dadoCadastrado.nome,
+						isLogged: true,
 					},
 					loading: false,
 				};
 			}
 
 			if (!payload.sucesso) {
-				return {
-					usuario: {
-						id: '',
-						isLogged: false,
-						nome: '',
-					},
-					loading: false,
-				};
+				return initialState;
 			}
 		});
-		builder.addCase(loginUsuario.rejected, (estadoAtual) => {
-			return {
-				...estadoAtual,
-				loading: false,
-			};
+		builder.addCase(loginUsuario.rejected, () => {
+			return initialState;
 		});
 	},
 });
