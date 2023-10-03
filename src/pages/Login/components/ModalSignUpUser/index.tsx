@@ -29,7 +29,9 @@ const AlertDialog: React.FC<AlertDialogProps> = ({ aberto, mudarAberto }) => {
 	const [nome, setNome] = useState('');
 	const [email, setEmail] = useState('');
 	const [senha, setSenha] = useState('');
+	const [isLogged, setIsLogged] = useState(false);
 	const estadoUsuario = useAppSelector((estado) => estado.users);
+	const dispatch = useAppDispatch();
 
 	const [errorNome, setErrorNome] = useState<IsValidCredentials>({
 		helperText: '',
@@ -54,6 +56,7 @@ const AlertDialog: React.FC<AlertDialogProps> = ({ aberto, mudarAberto }) => {
 		nome,
 		email,
 		senha,
+		isLogged,
 	};
 
 	const handleSignupUser = (ev: React.FormEvent<HTMLFormElement>) => {
@@ -74,8 +77,6 @@ const AlertDialog: React.FC<AlertDialogProps> = ({ aberto, mudarAberto }) => {
 			handleClose();
 		}, 3000);
 	};
-
-	const dispatch = useAppDispatch();
 
 	useEffect(() => {
 		if (!nome.length && !nomeRegex.test(nome)) {
