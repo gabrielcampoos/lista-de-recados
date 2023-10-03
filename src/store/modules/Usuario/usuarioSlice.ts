@@ -293,7 +293,7 @@ export const usuariosSlice = createSlice({
 				usuario: {
 					id: action.payload.id,
 					nome: action.payload.nome,
-					isLogged: false,
+					isLogged: true,
 				},
 			};
 		},
