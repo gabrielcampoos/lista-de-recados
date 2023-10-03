@@ -58,8 +58,8 @@ export const FormLogin = () => {
 		}
 
 		const login = {
-			email,
-			senha,
+			email: email,
+			senha: senha,
 		};
 
 		dispatch(loginUsuario(login));
