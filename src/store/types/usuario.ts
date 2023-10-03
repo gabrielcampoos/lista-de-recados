@@ -13,5 +13,5 @@ export type RetornoCriar = {
 export type RetornoLogin = {
 	sucesso: boolean;
 	mensagem: string;
-	dados?: string;
+	dados?: { id: string; nome: string };
 };

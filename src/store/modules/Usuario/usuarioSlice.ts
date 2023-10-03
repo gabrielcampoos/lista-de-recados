@@ -178,12 +178,11 @@
 
 // export default userSlice.reducer;
 
-import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { AxiosError } from 'axios';
 
 import serviceAPI from '../../../configs/services/listaDeRecados.api';
 import { RespostaCadastro } from '../../types/RetornoRequests';
-import { UsuarioLogin } from '../../types/UsuarioState';
 import { RetornoLogin, User } from '../../types/usuario';
 import { showNotification } from '../Notification/notificationSlice';
 
@@ -247,7 +246,7 @@ export const cadastrarUsuario = createAsyncThunk(
 // Criar action async para sign in
 export const loginUsuario = createAsyncThunk(
 	'usuario/login',
-	async (login: UsuarioLogin, { dispatch }) => {
+	async (login: Omit<User, 'nome'>, { dispatch }) => {
 		try {
 			const resposta = await serviceAPI.post('/login', login);
 
@@ -287,7 +286,7 @@ export const usuariosSlice = createSlice({
 	name: 'usuario',
 	initialState: initialState,
 	reducers: {
-		setUser: (estadoAtual, action: PayloadAction<UsuarioLogado>) => {
+		setUser: (estadoAtual, action) => {
 			return {
 				...estadoAtual,
 				usuario: {
@@ -297,7 +296,7 @@ export const usuariosSlice = createSlice({
 				},
 			};
 		},
-		logoutUser: (estadoAtual) => {
+		logoutUser: () => {
 			return initialState;
 		},
 	},
@@ -344,19 +343,20 @@ export const usuariosSlice = createSlice({
 				loading: true,
 			};
 		});
-		builder.addCase(loginUsuario.fulfilled, (estadoAtual, action) => {
-			const payload = action.payload as RespostaCadastro;
 
-			if (payload.sucesso && payload.dadoCadastrado) {
+		builder.addCase(loginUsuario.fulfilled, (estadoAtual, action) => {
+			const payload = action.payload as RetornoLogin;
+
+			if (payload.sucesso && payload.dados) {
 				localStorage.setItem(
 					'userLogged',
-					JSON.stringify(payload.dadoCadastrado),
+					JSON.stringify(payload.dados),
 				);
 
 				return {
 					usuario: {
-						id: payload.dadoCadastrado.id,
-						nome: payload.dadoCadastrado.nome,
+						id: payload.dados.id,
+						nome: payload.dados.nome,
 						isLogged: true,
 					},
 					loading: false,
