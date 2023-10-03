@@ -204,10 +204,7 @@ export const cadastrarUsuario = createAsyncThunk(
 		//try catch - toda vez q for feita uma requisição externa
 
 		try {
-			const resposta = await serviceAPI.post(
-				'/usuarios/cadastrar',
-				novoUsuario,
-			);
+			const resposta = await serviceAPI.post('/usuarios', novoUsuario);
 
 			const respostaAPI = resposta.data as RespostaCadastro;
 
@@ -246,7 +243,7 @@ export const loginUsuario = createAsyncThunk(
 	'usuario/login',
 	async (login: UsuarioLogin, { dispatch }) => {
 		try {
-			const resposta = await serviceAPI.post('/usuarios/logar', login);
+			const resposta = await serviceAPI.post('/login', login);
 
 			const respostaAPI = resposta.data as RespostaCadastro;
 
