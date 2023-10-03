@@ -29,7 +29,6 @@ const AlertDialog: React.FC<AlertDialogProps> = ({ aberto, mudarAberto }) => {
 	const [nome, setNome] = useState('');
 	const [email, setEmail] = useState('');
 	const [senha, setSenha] = useState('');
-	const [isLogged, setIsLogged] = useState(false);
 	const estadoUsuario = useAppSelector((estado) => estado.users);
 	const dispatch = useAppDispatch();
 
@@ -56,7 +55,6 @@ const AlertDialog: React.FC<AlertDialogProps> = ({ aberto, mudarAberto }) => {
 		nome,
 		email,
 		senha,
-		isLogged,
 	};
 
 	const handleSignupUser = (ev: React.FormEvent<HTMLFormElement>) => {

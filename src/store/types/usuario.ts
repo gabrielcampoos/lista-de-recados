@@ -2,7 +2,6 @@ export interface User {
 	nome: string;
 	email: string;
 	senha: string;
-	isLogged: boolean;
 }
 
 export type RetornoCriar = {

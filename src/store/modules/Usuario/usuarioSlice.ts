@@ -354,7 +354,6 @@ export const usuariosSlice = createSlice({
 				);
 
 				return {
-					...estadoAtual,
 					usuario: {
 						id: payload.dadoCadastrado.id,
 						nome: payload.dadoCadastrado.nome,
